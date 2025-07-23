@@ -1,0 +1,218 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #FCFCFC;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Navbar */
+.navbar {
+    background: #FCFCFC;
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 1rem 2rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+.navbar h1 {
+    color: #333;
+    font-size: 1.5rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+/* Main Container */
+.container {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem;
+}
+
+.results-container {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 3px;
+    padding: 2.5rem;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    max-width: 600px;
+    width: 100%;
+}
+
+.results-title {
+    text-align: center;
+    color: #333;
+    margin-bottom: 2rem;
+    font-size: 1.8rem;
+    font-weight: 600;
+}
+
+/* Results Groups */
+.result-group {
+    margin-bottom: 1.5rem;
+}
+
+.result-row {
+    display: flex;
+    align-items: center;
+    gap: 0rem;
+    margin-bottom: 0.5rem;
+}
+
+.result-label {
+    background: #4a5568;
+    color: white;
+    padding: 0.75rem 1rem;
+    border-radius: 3px;
+    font-weight: bold;
+    min-width: 180px;
+    text-align: center;
+    font-size: 0.9rem;
+}
+
+.result-value {
+    flex: 1;
+    padding: 0.75rem 1rem;
+    border: 2px solid #e2e8f0;
+    border-radius: 3px;
+    font-size: 1rem;
+    background: #f8f9fa;
+    color: #333;
+    font-weight: 600;
+    text-align: center;
+}
+
+/* Special styling for different result types */
+.result-label.root { background: #EF476F; }
+.result-label.iterations { background: #06D6A0; }
+.result-label.error { background: #FFD166; color: #333; }
+
+/* Success indicator */
+.success-indicator {
+    background: #06D6A0;
+    color: white;
+    padding: 1rem;
+    border-radius: 3px;
+    text-align: center;
+    margin-bottom: 2rem;
+    font-weight: 600;
+}
+
+/* Action Buttons */
+.action-buttons {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+.btn {
+    flex: 1;
+    border: none;
+    padding: 1rem 2rem;
+    border-radius: 3px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-primary {
+    background-color: #26547C;
+    color: white;
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+    color: white;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(103, 104, 104, 0.3);
+}
+
+.btn:active {
+    transform: translateY(0);
+}
+
+/* Footer */
+.footer {
+    background: #26547C;
+    color: white;
+    text-align: center;
+    padding: 1rem;
+    font-size: 0.9rem;
+}
+
+/* Input Summary Section */
+.input-summary {
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 3px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.input-summary h3 {
+    color: #495057;
+    margin-bottom: 1rem;
+    font-size: 1.1rem;
+}
+
+.input-item {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+    padding: 0.25rem 0;
+}
+
+.input-label {
+    font-weight: 600;
+    color: #495057;
+}
+
+.input-value {
+    color: #26547C;
+    font-family: 'Courier New', monospace;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .result-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .result-label {
+        min-width: auto;
+        margin-bottom: 0.5rem;
+    }
+
+    .action-buttons {
+        flex-direction: column;
+    }
+
+    .navbar {
+        padding: 1rem;
+    }
+
+    .results-container {
+        padding: 1.5rem;
+        margin: 1rem;
+    }
+
+    .input-item {
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+}

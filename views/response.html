@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/public/css/response.css">
+    <title>Resultados - Calculadora de Función</title>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <h1>Calculadora de Función Matemática</h1>
+    </nav>
+
+    <!-- Main Container -->
+    <div class="container">
+        <div class="results-container">
+            <h2 class="results-title">Resultados del Cálculo</h2>
+            
+            <!-- Success Indicator -->
+            <div class="success-indicator">
+                ✓ Cálculo completado exitosamente
+            </div>
+
+            <!-- Input Summary -->
+            <div class="input-summary">
+                <h3>Parámetros utilizados:</h3>
+                <div class="input-item">
+                    <span class="input-label">Función f(x):</span>
+                    <span class="input-value" id="input-function">x^2 - 4</span>
+                </div>
+                <div class="input-item">
+                    <span class="input-label">Intervalo [a, b]:</span>
+                    <span class="input-value" id="input-interval">[1.0, 3.0]</span>
+                </div>
+                <div class="input-item">
+                    <span class="input-label">Tolerancia:</span>
+                    <span class="input-value" id="input-tolerance">0.001</span>
+                </div>
+                <div class="input-item">
+                    <span class="input-label">Iteraciones máximas:</span>
+                    <span class="input-value" id="input-max-iterations">100</span>
+                </div>
+            </div>
+
+            <!-- Results Display -->
+            <div class="result-group">
+                <div class="result-row">
+                    <div class="result-label root">Raíz aproximada:</div>
+                    <div class="result-value" id="approximate-root">2.0000</div>
+                </div>
+            </div>
+
+            <div class="result-group">
+                <div class="result-row">
+                    <div class="result-label iterations">Iteraciones realizadas:</div>
+                    <div class="result-value" id="iterations-performed">12</div>
+                </div>
+            </div>
+
+            <div class="result-group">
+                <div class="result-row">
+                    <div class="result-label error">Error estimado:</div>
+                    <div class="result-value" id="estimated-error">0.0005</div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="action-buttons">
+                <button class="btn btn-primary" onclick="newCalculation()">Nuevo Cálculo</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>&copy; 2025 Calculadora de Función Matemática. Todos los derechos reservados.</p>
+    </footer>
+
+    <script>
+        function convertirPotencias(expr) {
+            // Reemplaza "x**3" por "Math.pow(x, 3)"
+            return expr.replace(/([a-zA-Z0-9_]+)\s*\*\*\s*([a-zA-Z0-9_]+)/g, 'Math.pow($1,$2)');
+        }
+
+        function parseFunction(fnString) {
+            try {
+                const convertido = convertirPotencias(fnString);
+                return new Function("x", `with (Math) { return ${convertido}; }`);
+            } catch (e) {
+                alert("Error al interpretar la función: " + e.message);
+                return null;
+            }
+        }
+
+        function biseccion(f, a, b, tol, maxIter = 100) {
+            let fa = f(a);
+            let fb = f(b);
+            if (fa * fb >= 0) {
+                return { error: "f(a) y f(b) no tienen signos opuestos." };
+            }
+
+            let iter = 0;
+            let c, fc;
+
+            while ((b - a) / 2 > tol && iter < maxIter) {
+                c = (a + b) / 2;
+                fc = f(c);
+
+                if (fc === 0) break;
+
+                if (fa * fc < 0) {
+                    b = c;
+                    fb = fc;
+                } else {
+                    a = c;
+                    fa = fc;
+                }
+
+                iter++;
+            }
+
+            return {
+                raiz: (a + b) / 2,
+                iteraciones: iter,
+                error: (b - a) / 2
+            };
+        }
+
+        // Cargar datos del localStorage
+        const datos = JSON.parse(localStorage.getItem("biseccionDatos"));
+
+        if (!datos) {
+            alert("No hay datos disponibles. Por favor, vuelve al formulario.");
+            location.href = "index.html";
+        } else {
+            const { func, a, b, tol, maxIter } = datos;
+
+            // Insertar parámetros usados
+            document.getElementById("input-function").textContent = func;
+            document.getElementById("input-interval").textContent = `[${a}, ${b}]`;
+            document.getElementById("input-tolerance").textContent = tol;
+            document.getElementById("input-max-iterations").textContent = maxIter;
+
+            try {
+                const f = parseFunction(func);
+                const resultado = biseccion(f, parseFloat(a), parseFloat(b), parseFloat(tol), parseInt(maxIter));
+
+                if (resultado.error) {
+                    alert(resultado.error);
+                    document.getElementById("approximate-root").textContent = "Error";
+                    document.getElementById("iterations-performed").textContent = "-";
+                    document.getElementById("estimated-error").textContent = "-";
+                } else {
+                    // Redondear a 6 decimales para visualización
+                    document.getElementById("approximate-root").textContent = resultado.raiz.toFixed(6);
+                    document.getElementById("iterations-performed").textContent = resultado.iteraciones;
+                    document.getElementById("estimated-error").textContent = resultado.error.toExponential(2);
+                }
+            } catch (e) {
+                alert("Error en el cálculo: " + e.message);
+            }
+        }
+
+        // Botón "Nuevo Cálculo"
+        function newCalculation() {
+            localStorage.removeItem("biseccionDatos");
+            location.href = "../index.html";
+        }
+
+    </script>
+</body>
+</html>

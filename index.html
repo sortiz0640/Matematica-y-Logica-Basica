@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="public/css/styles.css">
+    <title>Calculadora de Función</title>
+</head>
+<body>
+
+    <nav class="navbar">
+        <h1>Calculadora de Función Matemática</h1>
+    </nav>
+
+    <div class="container">
+        <div class="form-container">
+            <h2 class="form-title">Metodo de Biseccion</h2>          
+            <form id="calculatorForm">
+                <div class="form-group">
+                    <div class="form-row">
+                        <div class="field-label string">f(x)</div>
+                        <input type="text" class="input-field" id="function" name="function" placeholder="Ej: x^2 + 2*x + 1" required>
+                    </div>
+                    <div class="field-instruction">Función bien escrita, usando x como variable</div>
+                </div>
+                <div class="form-group">
+                    <div class="form-row">
+                        <div class="field-label float">a</div>
+                        <input type="number" step="any" class="input-field" id="valueA" name="valueA" placeholder="Ej: 1.5" required>
+                    </div>
+                    <div class="field-instruction">Valor menor que b</div>
+                </div>
+                <div class="form-group">
+                    <div class="form-row">
+                        <div class="field-label float">b</div>
+                        <input type="number" step="any" class="input-field" id="valueB" name="valueB" placeholder="Ej: 3.0" required>
+                    </div>
+                    <div class="field-instruction">Valor mayor que a</div>
+                </div>
+                <div class="form-group">
+                    <div class="form-row">
+                        <div class="field-label float">Tolerancia</div>
+                        <input type="number" step="any" class="input-field" id="tolerance" name="tolerance" placeholder="Ej: 0.001" required>
+                    </div>
+                    <div class="field-instruction">Valor mayor que 0</div>
+                </div>
+                <div class="form-group">
+                    <div class="form-row">
+                        <div class="field-label int">Iteraciones</div>
+                        <input type="number" class="input-field" id="iterations" name="iterations" placeholder="Ej: 100">
+                    </div>
+                    <div class="field-instruction">Valor mayor que 0</div>
+                </div>
+
+                <button type="submit" class="submit-btn">Calcular Resultado</button>
+            </form>
+        </div>
+    </div>
+    <footer class="footer">
+        <p>&copy; 2025 Calculadora de Función Matemática. Todos los derechos reservados.</p>
+    </footer>
+
+    <script>
+        document.getElementById("calculatorForm").addEventListener("submit", function(e) {
+            e.preventDefault();
+
+            const func = document.getElementById("function").value;
+            const a = parseFloat(document.getElementById("valueA").value);
+            const b = parseFloat(document.getElementById("valueB").value);
+            const tol = parseFloat(document.getElementById("tolerance").value);
+            const maxIter = parseInt(document.getElementById("iterations").value) || 100;
+
+            // Validaciones básicas
+            if (isNaN(a) || isNaN(b) || isNaN(tol)) {
+                alert("Asegúrate de ingresar valores numéricos válidos.");
+                return;
+            }
+            if (a >= b) {
+                alert("El valor de 'a' debe ser menor que 'b'.");
+                return;
+            }
+            if (tol <= 0) {
+                alert("La tolerancia debe ser mayor que 0.");
+                return;
+            }
+
+            // Guardar datos
+            const data = { func, a, b, tol, maxIter };
+            localStorage.setItem("biseccionDatos", JSON.stringify(data));
+
+            // Redirigir a la página de resultados
+            window.location.href = "views/response.html";
+        });
+    </script>
+</body>
+</html>
