@@ -7,22 +7,15 @@
     <title>Resultados - Calculadora de Función</title>
 </head>
 <body>
-    <!-- Navbar -->
     <nav class="navbar">
         <h1>Calculadora de Función Matemática</h1>
     </nav>
-
-    <!-- Main Container -->
     <div class="container">
         <div class="results-container">
             <h2 class="results-title">Resultados del Cálculo</h2>
-            
-            <!-- Success Indicator -->
             <div class="success-indicator">
                 ✓ Cálculo completado exitosamente
             </div>
-
-            <!-- Input Summary -->
             <div class="input-summary">
                 <h3>Parámetros utilizados:</h3>
                 <div class="input-item">
@@ -42,42 +35,35 @@
                     <span class="input-value" id="input-max-iterations">100</span>
                 </div>
             </div>
-
-            <!-- Results Display -->
             <div class="result-group">
                 <div class="result-row">
                     <div class="result-label root">Raíz aproximada:</div>
                     <div class="result-value" id="approximate-root">2.0000</div>
                 </div>
             </div>
-
             <div class="result-group">
                 <div class="result-row">
                     <div class="result-label iterations">Iteraciones realizadas:</div>
                     <div class="result-value" id="iterations-performed">12</div>
                 </div>
             </div>
-
             <div class="result-group">
                 <div class="result-row">
                     <div class="result-label error">Error estimado:</div>
                     <div class="result-value" id="estimated-error">0.0005</div>
                 </div>
             </div>
-
-            <!-- Action Buttons -->
             <div class="action-buttons">
                 <button class="btn btn-primary" onclick="newCalculation()">Nuevo Cálculo</button>
             </div>
         </div>
     </div>
-
-    <!-- Footer -->
     <footer class="footer">
         <p>&copy; 2025 Calculadora de Función Matemática. Todos los derechos reservados.</p>
     </footer>
-
+    
     <script>
+        /* 
         function convertirPotencias(expr) {
             // Reemplaza "x**3" por "Math.pow(x, 3)"
             return expr.replace(/([a-zA-Z0-9_]+)\s*\*\*\s*([a-zA-Z0-9_]+)/g, 'Math.pow($1,$2)');
@@ -125,7 +111,7 @@
                 iteraciones: iter,
                 error: (b - a) / 2
             };
-        }
+        } 
 
         // Cargar datos del localStorage
         const datos = JSON.parse(localStorage.getItem("biseccionDatos"));
@@ -167,7 +153,7 @@
             localStorage.removeItem("biseccionDatos");
             location.href = "../index.html";
         }
-
+        */
     </script>
 </body>
 </html>

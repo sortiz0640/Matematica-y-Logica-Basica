@@ -1,0 +1,63 @@
+----------------------------------------------------------------------------------------------------
+> Generado con ChatGPT en base al análsis del código
+----------------------------------------------------------------------------------------------------
+
+Inicio
+  │
+  ▼
+[Vista: index.html]
+Mostrar formulario con:
+- Función f(x)
+- Valores a y b
+- Tolerancia
+- Iteraciones máximas
+  │
+  ▼
+[Usuario completa el formulario y presiona "Calcular Resultado"]
+  │
+  ▼
+[Validar datos]
+¿Los datos son válidos?
+  ├─ No ─> Mostrar alerta de error → Fin
+  │
+  └─ Sí
+        │
+        ▼
+[Guardar datos en localStorage]
+  │
+  ▼
+[Redirigir a response.html]
+  │
+  ▼
+[Vista: response.html]
+¿Existen datos en localStorage?
+  ├─ No ─> Alerta + Redirección a index.html → Fin
+  │
+  └─ Sí
+        │
+        ▼
+[Parsear función y ejecutar algoritmo de bisección]
+  │
+  ▼
+¿f(a) * f(b) < 0?
+  ├─ No ─> Mostrar error de signos → Fin
+  │
+  └─ Sí
+        │
+        ▼
+[Ejecutar método de bisección]
+  │
+  ▼
+[Mostrar resultados]
+- Raíz aproximada
+- Iteraciones realizadas
+- Error estimado
+  │
+  ▼
+[Botón "Nuevo Cálculo"]
+  ▼
+[Borrar localStorage]
+  ▼
+[Redirigir a index.html]
+  ▼
+Fin

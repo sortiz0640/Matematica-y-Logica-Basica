@@ -1,0 +1,16 @@
+---------------------------------------------------------------------------------------------------
+Proyecto Matemática y Lógica básica
+    > Sebastian Ortiz Vargas
+    > Julio Salvador Quiros
+
+Detalles importantes:
+
+    > El codigo esta aun en desarrollo, por lo que unicamente funcionan las paginas html para
+        la visualizacion del diseño.
+
+    > Para la visualizacion de estas, se utiliza la extension de vscode live-server 
+    
+    > Click derecho en una pagina html, run with live-server, esto abre el programa en una 
+        pestana del navegador. 
+
+--------------------------------------------------------------------------------------------------
