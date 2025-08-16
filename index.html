@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="public/css/styles.css">
+    <link rel="stylesheet" href="/public/css/styles.css">
     <title>Calculadora de Función</title>
 </head>
 <body>
@@ -14,42 +14,42 @@
 
     <div class="container">
         <div class="form-container">
-            <h2 class="form-title">Metodo de Biseccion</h2>          
+            <h2 class="form-title">Método de Bisección</h2>          
             <form id="calculatorForm">
                 <div class="form-group">
                     <div class="form-row">
                         <div class="field-label string">f(x)</div>
-                        <input type="text" class="input-field" id="function" name="function" placeholder="Ej: x^2 + 2*x + 1" required>
+                        <input type="text" class="input-field" id="function" name="function" placeholder="Ej: 4*x^2 - 5*x" required>
                     </div>
-                    <div class="field-instruction">Función bien escrita, usando x como variable</div>
+                    <div class="field-instruction">Función bien escrita, usando x como variable. Use ^ para potencias</div>
                 </div>
                 <div class="form-group">
                     <div class="form-row">
-                        <div class="field-label float">a</div>
-                        <input type="number" step="any" class="input-field" id="valueA" name="valueA" placeholder="Ej: 1.5" required>
+                        <div class="field-label float">Xi (a)</div>
+                        <input type="number" step="any" class="input-field" id="valueA" name="valueA" placeholder="Ej: 1" required>
                     </div>
-                    <div class="field-instruction">Valor menor que b</div>
+                    <div class="field-instruction">Límite inferior del intervalo</div>
                 </div>
                 <div class="form-group">
                     <div class="form-row">
-                        <div class="field-label float">b</div>
-                        <input type="number" step="any" class="input-field" id="valueB" name="valueB" placeholder="Ej: 3.0" required>
+                        <div class="field-label float">Xu (b)</div>
+                        <input type="number" step="any" class="input-field" id="valueB" name="valueB" placeholder="Ej: 1.6" required>
                     </div>
-                    <div class="field-instruction">Valor mayor que a</div>
+                    <div class="field-instruction">Límite superior del intervalo</div>
                 </div>
                 <div class="form-group">
                     <div class="form-row">
                         <div class="field-label float">Tolerancia</div>
                         <input type="number" step="any" class="input-field" id="tolerance" name="tolerance" placeholder="Ej: 0.001" required>
                     </div>
-                    <div class="field-instruction">Valor mayor que 0</div>
+                    <div class="field-instruction">Error aceptable (mayor que 0)</div>
                 </div>
                 <div class="form-group">
                     <div class="form-row">
                         <div class="field-label int">Iteraciones</div>
                         <input type="number" class="input-field" id="iterations" name="iterations" placeholder="Ej: 100">
                     </div>
-                    <div class="field-instruction">Valor mayor que 0</div>
+                    <div class="field-instruction">Máximo número de iteraciones</div>
                 </div>
 
                 <button type="submit" class="submit-btn">Calcular Resultado</button>
@@ -61,38 +61,102 @@
     </footer>
 
     <script>
-        /* 
+        // Función para evaluar expresiones matemáticas
+        function evaluarFuncion(expresion, x) {
+            try {
+                // Preparar la expresión
+                let expr = expresion.toLowerCase();
+                
+                // Reemplazar ^ por ** para potencias
+                expr = expr.replace(/\^/g, '**');
+                
+                // Agregar multiplicación implícita (ej: 4x -> 4*x)
+                expr = expr.replace(/([0-9])\s*([a-z])/g, '$1*$2');
+                
+                // Reemplazar funciones matemáticas comunes
+                expr = expr.replace(/sin/g, 'Math.sin');
+                expr = expr.replace(/cos/g, 'Math.cos');
+                expr = expr.replace(/tan/g, 'Math.tan');
+                expr = expr.replace(/log/g, 'Math.log');
+                expr = expr.replace(/ln/g, 'Math.log');
+                expr = expr.replace(/sqrt/g, 'Math.sqrt');
+                
+                // Reemplazar x por el valor numérico
+                expr = expr.replace(/x/g, `(${x})`);
+                
+                // Usar Function para evaluar de forma segura
+                return Function(`"use strict"; return (${expr})`)();
+            } catch (error) {
+                throw new Error("Error al evaluar la función: " + error.message);
+            }
+        }
+
+        // Validar que f(xi) * f(xu) < 0
+        function validarIntervalo(func, xi, xu) {
+            const fXi = evaluarFuncion(func, xi);
+            const fXu = evaluarFuncion(func, xu);
+            return fXi * fXu < 0;
+        }
+
         document.getElementById("calculatorForm").addEventListener("submit", function(e) {
             e.preventDefault();
 
-            const func = document.getElementById("function").value;
-            const a = parseFloat(document.getElementById("valueA").value);
-            const b = parseFloat(document.getElementById("valueB").value);
+            const func = document.getElementById("function").value.trim();
+            const xi = parseFloat(document.getElementById("valueA").value);
+            const xu = parseFloat(document.getElementById("valueB").value);
             const tol = parseFloat(document.getElementById("tolerance").value);
             const maxIter = parseInt(document.getElementById("iterations").value) || 100;
 
             // Validaciones básicas
-            if (isNaN(a) || isNaN(b) || isNaN(tol)) {
+            if (!func) {
+                alert("Por favor, ingresa una función válida.");
+                return;
+            }
+
+            if (isNaN(xi) || isNaN(xu) || isNaN(tol)) {
                 alert("Asegúrate de ingresar valores numéricos válidos.");
                 return;
             }
-            if (a >= b) {
-                alert("El valor de 'a' debe ser menor que 'b'.");
+
+            if (xi >= xu) {
+                alert("El valor de Xi debe ser menor que Xu.");
                 return;
             }
+
             if (tol <= 0) {
                 alert("La tolerancia debe ser mayor que 0.");
                 return;
             }
 
-            // Guardar datos
-            const data = { func, a, b, tol, maxIter };
-            localStorage.setItem("biseccionDatos", JSON.stringify(data));
+            if (maxIter <= 0) {
+                alert("El número de iteraciones debe ser mayor que 0.");
+                return;
+            }
+
+            // Validar que la función se puede evaluar
+            try {
+                evaluarFuncion(func, xi);
+                evaluarFuncion(func, xu);
+            } catch (error) {
+                alert("Error en la función: " + error.message);
+                return;
+            }
+
+            // Validar que f(xi) * f(xu) < 0
+            if (!validarIntervalo(func, xi, xu)) {
+                const fXi = evaluarFuncion(func, xi);
+                const fXu = evaluarFuncion(func, xu);
+                alert(`Error: f(${xi}) * f(${xu}) = ${fXi} * ${fXu} = ${fXi * fXu} debe ser < 0.\nNo hay cambio de signo en el intervalo.`);
+                return;
+            }
+
+            // Guardar datos en sessionStorage (alternativa a localStorage)
+            const data = { func, xi, xu, tol, maxIter };
+            sessionStorage.setItem("biseccionDatos", JSON.stringify(data));
 
             // Redirigir a la página de resultados
-            window.location.href = "views/response.html";
+            window.location.href = "/views/response.html";
         });
-        */
     </script>
 </body>
 </html>

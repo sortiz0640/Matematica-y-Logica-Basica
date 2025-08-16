@@ -3,8 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="/public/css/response.css">
     <title>Resultados - Calculadora de Función</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/10.6.4/math.js"></script>
+    <link rel="stylesheet" href="/public/css/response.css">
+
 </head>
 <body>
     <nav class="navbar">
@@ -12,19 +14,20 @@
     </nav>
     <div class="container">
         <div class="results-container">
-            <h2 class="results-title">Resultados del Cálculo</h2>
+            <h2 class="results-title">Resultados del Método de Bisección</h2>
             <div class="success-indicator">
                 ✓ Cálculo completado exitosamente
             </div>
+            
             <div class="input-summary">
                 <h3>Parámetros utilizados:</h3>
                 <div class="input-item">
                     <span class="input-label">Función f(x):</span>
-                    <span class="input-value" id="input-function">x^2 - 4</span>
+                    <span class="input-value" id="input-function">4*x^2 - 5*x</span>
                 </div>
                 <div class="input-item">
-                    <span class="input-label">Intervalo [a, b]:</span>
-                    <span class="input-value" id="input-interval">[1.0, 3.0]</span>
+                    <span class="input-label">Intervalo [Xi, Xu]:</span>
+                    <span class="input-value" id="input-interval">[1.0, 1.6]</span>
                 </div>
                 <div class="input-item">
                     <span class="input-label">Tolerancia:</span>
@@ -35,16 +38,17 @@
                     <span class="input-value" id="input-max-iterations">100</span>
                 </div>
             </div>
+
             <div class="result-group">
                 <div class="result-row">
                     <div class="result-label root">Raíz aproximada:</div>
-                    <div class="result-value" id="approximate-root">2.0000</div>
+                    <div class="result-value" id="approximate-root">1.25000</div>
                 </div>
             </div>
             <div class="result-group">
                 <div class="result-row">
                     <div class="result-label iterations">Iteraciones realizadas:</div>
-                    <div class="result-value" id="iterations-performed">12</div>
+                    <div class="result-value" id="iterations-performed">10</div>
                 </div>
             </div>
             <div class="result-group">
@@ -53,6 +57,13 @@
                     <div class="result-value" id="estimated-error">0.0005</div>
                 </div>
             </div>
+
+            <!-- Tabla de iteraciones -->
+            <div class="iterations-table-container">
+                <h3>Procedimiento paso a paso:</h3>
+                <div id="iterations-table"></div>
+            </div>
+
             <div class="action-buttons">
                 <button class="btn btn-primary" onclick="newCalculation()">Nuevo Cálculo</button>
             </div>
@@ -61,99 +72,194 @@
     <footer class="footer">
         <p>&copy; 2025 Calculadora de Función Matemática. Todos los derechos reservados.</p>
     </footer>
-    
     <script>
-        /* 
-        function convertirPotencias(expr) {
-            // Reemplaza "x**3" por "Math.pow(x, 3)"
-            return expr.replace(/([a-zA-Z0-9_]+)\s*\*\*\s*([a-zA-Z0-9_]+)/g, 'Math.pow($1,$2)');
+    // Función para evaluar expresiones matemáticas de forma segura
+    function evaluarFuncion(expresion, x) {
+        try {
+            // Reemplazar 'x' por el valor numérico
+            let expr = expresion.replace(/\^/g, '^'); // potencias
+            expr = expr.replace(/([0-9])\s*([a-z])/g, '$1*$2'); // multiplicación implícita
+            expr = expr.replace(/x/g, `(${x})`);
+            return math.evaluate(expr);
+        } catch (error) {
+            console.error("Error en evaluarFuncion:", error);
+            throw new Error(`Error al evaluar '${expresion}' con x=${x}: ${error.message}`);
+        }
+    }
+
+    // Método de bisección corregido
+    function metodoBiseccion(func, xi, xu, tol, maxIter = 100) {
+        let iteraciones = [];
+        let a = parseFloat(xi);
+        let b = parseFloat(xu);
+
+        let fa = evaluarFuncion(func, a);
+        let fb = evaluarFuncion(func, b);
+
+        if (fa * fb >= 0) {
+            return { error: `f(Xi) y f(Xu) no tienen signos opuestos. f(${a})=${fa}, f(${b})=${fb}` };
         }
 
-        function parseFunction(fnString) {
-            try {
-                const convertido = convertirPotencias(fnString);
-                return new Function("x", `with (Math) { return ${convertido}; }`);
-            } catch (e) {
-                alert("Error al interpretar la función: " + e.message);
-                return null;
+        let iter = 0;
+        let xr = a;
+        let fxr;
+        let errorActual = tol + 1;
+        let xrAnterior = a;
+
+        // Registro inicial
+        iteraciones.push({
+            iteracion: iter,
+            xi: a,
+            xu: b,
+            xr: null,
+            fxi: fa,
+            fxu: fb,
+            fxr: null,
+            error: errorActual,
+            comentario: "Intervalo inicial"
+        });
+
+        while (errorActual > tol && iter < maxIter) {
+            xr = (a + b) / 2;
+            fxr = evaluarFuncion(func, xr);
+            iter++;
+
+            // Calcular error relativo
+            errorActual = Math.abs(xr - xrAnterior);
+            xrAnterior = xr;
+
+            let comentario = "";
+            if (Math.abs(fxr) < 1e-15) {
+                comentario = "f(Xr) ≈ 0, raíz encontrada";
+                errorActual = 0;
+            } else if (fa * fxr < 0) {
+                comentario = `f(${a.toFixed(6)})*f(${xr.toFixed(6)}) < 0 → Xu = Xr`;
+                b = xr;
+                fb = fxr;
+            } else {
+                comentario = `f(${a.toFixed(6)})*f(${xr.toFixed(6)}) > 0 → Xi = Xr`;
+                a = xr;
+                fa = fxr;
             }
+
+            iteraciones.push({
+                iteracion: iter,
+                xi: a,
+                xu: b,
+                xr: xr,
+                fxi: fa,
+                fxu: fb,
+                fxr: fxr,
+                error: errorActual,
+                comentario: comentario
+            });
         }
 
-        function biseccion(f, a, b, tol, maxIter = 100) {
-            let fa = f(a);
-            let fb = f(b);
-            if (fa * fb >= 0) {
-                return { error: "f(a) y f(b) no tienen signos opuestos." };
-            }
+        return {
+            raiz: xr,
+            iteraciones: iter,
+            error: errorActual,
+            procedimiento: iteraciones
+        };
+    }
 
-            let iter = 0;
-            let c, fc;
+    // Crear tabla de iteraciones
+    function crearTablaIteraciones(procedimiento) {
+        let html = `
+            <table border="1" cellspacing="0" cellpadding="5">
+                <thead>
+                    <tr>
+                        <th>Iter</th>
+                        <th>Xi</th>
+                        <th>Xu</th>
+                        <th>Xr</th>
+                        <th>f(Xi)</th>
+                        <th>f(Xu)</th>
+                        <th>f(Xr)</th>
+                        <th>Error</th>
+                        <th>Observación</th>
+                    </tr>
+                </thead>
+                <tbody>
+        `;
 
-            while ((b - a) / 2 > tol && iter < maxIter) {
-                c = (a + b) / 2;
-                fc = f(c);
+        procedimiento.forEach(iter => {
+            html += `
+                <tr>
+                    <td>${iter.iteracion}</td>
+                    <td>${iter.xi.toFixed(6)}</td>
+                    <td>${iter.xu.toFixed(6)}</td>
+                    <td>${iter.xr !== null ? iter.xr.toFixed(6) : '-'}</td>
+                    <td>${iter.fxi.toFixed(6)}</td>
+                    <td>${iter.fxu.toFixed(6)}</td>
+                    <td>${iter.fxr !== null ? iter.fxr.toFixed(6) : '-'}</td>
+                    <td>${iter.error.toExponential(3)}</td>
+                    <td style="text-align: left;">${iter.comentario}</td>
+                </tr>
+            `;
+        });
 
-                if (fc === 0) break;
+        html += `</tbody></table>`;
+        return html;
+    }
 
-                if (fa * fc < 0) {
-                    b = c;
-                    fb = fc;
-                } else {
-                    a = c;
-                    fa = fc;
-                }
+    // Mostrar resultados
+    function mostrarResultados() {
+        const elements = {
+            func: document.getElementById("input-function"),
+            interval: document.getElementById("input-interval"),
+            tolerance: document.getElementById("input-tolerance"),
+            maxIter: document.getElementById("input-max-iterations"),
+            root: document.getElementById("approximate-root"),
+            iterations: document.getElementById("iterations-performed"),
+            error: document.getElementById("estimated-error"),
+            table: document.getElementById("iterations-table")
+        };
 
-                iter++;
-            }
-
-            return {
-                raiz: (a + b) / 2,
-                iteraciones: iter,
-                error: (b - a) / 2
-            };
-        } 
-
-        // Cargar datos del localStorage
-        const datos = JSON.parse(localStorage.getItem("biseccionDatos"));
-
+        const datos = JSON.parse(sessionStorage.getItem("biseccionDatos"));
         if (!datos) {
-            alert("No hay datos disponibles. Por favor, vuelve al formulario.");
-            location.href = "index.html";
-        } else {
-            const { func, a, b, tol, maxIter } = datos;
-
-            // Insertar parámetros usados
-            document.getElementById("input-function").textContent = func;
-            document.getElementById("input-interval").textContent = `[${a}, ${b}]`;
-            document.getElementById("input-tolerance").textContent = tol;
-            document.getElementById("input-max-iterations").textContent = maxIter;
-
-            try {
-                const f = parseFunction(func);
-                const resultado = biseccion(f, parseFloat(a), parseFloat(b), parseFloat(tol), parseInt(maxIter));
-
-                if (resultado.error) {
-                    alert(resultado.error);
-                    document.getElementById("approximate-root").textContent = "Error";
-                    document.getElementById("iterations-performed").textContent = "-";
-                    document.getElementById("estimated-error").textContent = "-";
-                } else {
-                    // Redondear a 6 decimales para visualización
-                    document.getElementById("approximate-root").textContent = resultado.raiz.toFixed(6);
-                    document.getElementById("iterations-performed").textContent = resultado.iteraciones;
-                    document.getElementById("estimated-error").textContent = resultado.error.toExponential(2);
-                }
-            } catch (e) {
-                alert("Error en el cálculo: " + e.message);
-            }
+            alert("No hay datos disponibles. Regresa al formulario.");
+            window.location.href = "index.html";
+            return;
         }
 
-        // Botón "Nuevo Cálculo"
-        function newCalculation() {
-            localStorage.removeItem("biseccionDatos");
-            location.href = "../index.html";
+        const { func, xi, xu, tol, maxIter } = datos;
+
+        elements.func.textContent = func;
+        elements.interval.textContent = `[${xi}, ${xu}]`;
+        elements.tolerance.textContent = tol;
+        elements.maxIter.textContent = maxIter;
+
+        try {
+            const resultado = metodoBiseccion(func, xi, xu, tol, maxIter);
+
+            if (resultado.error && typeof resultado.error === 'number') {
+    elements.error.textContent = resultado.error.toExponential(3);
+} else {
+    elements.error.textContent = "-";
+}
+
+            elements.root.textContent = resultado.raiz.toFixed(6);
+            elements.iterations.textContent = resultado.iteraciones;
+            elements.error.textContent = resultado.error.toExponential(3);
+            elements.table.innerHTML = crearTablaIteraciones(resultado.procedimiento);
+
+        } catch (error) {
+            console.error(error);
+            elements.root.textContent = "Error";
+            elements.iterations.textContent = "-";
+            elements.error.textContent = "-";
+            elements.table.innerHTML = `<p class="error-message">${error.message}</p>`;
+            alert(error.message);
         }
-        */
-    </script>
+    }
+
+    function newCalculation() {
+        sessionStorage.removeItem("biseccionDatos");
+        window.location.href = "../index.html";
+    }
+
+    window.onload = mostrarResultados;
+</script>
 </body>
 </html>
